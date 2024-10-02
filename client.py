@@ -4,11 +4,13 @@ import sys
 import time
 import threading
 from tkinter import *
+from pydub import AudioSegment
+from io import BytesIO
 
-chunk = 1024 
+chunk = 16384 
 FORMAT = pyaudio.paInt16  
 CHANNELS = 1  
-RATE = 10240
+RATE = 40960
 
 p = pyaudio.PyAudio() # Cria um objeto pyaudio
 
@@ -20,26 +22,22 @@ stream = p.open(format = FORMAT,            # Formato do audio (16 bits por amos
                 frames_per_buffer = chunk)  # Tamanho do buffer de audio
 
 # Inicialização do socket
-host = 'localhost'
-port = 50000
-size = 1024 # Tamanho do buffer
+host = socket.gethostname() # Pega o nome da máquina local
+port = 7777
+size = 32768 # Tamanho do buffer
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # Criação do socket (AF_INET = IPv4, SOCK_DGRAM = UDP)
 s.connect((host,port)) # Conecta o socket com o servidor específicado
 
 class VOIP_FRAME(Frame):
-    
     def OnMouseDown(self, event):
-        # Evento de clique do mouse, seta a variavel self.mute para False e chama a função speakStart
         self.mute = False
         self.speakStart()
         
     def muteSpeak(self, event):
-        # Quando o botão é solto, a variavel self.mute é setada para True
         self.mute = True
         print("Você foi mutado")
         
     def speakStart(self):
-        # Inicializa a thread que irá enviar os dados do microfone para o servidor
         t = threading.Thread(target=self.speak)
         t.start()
                 
@@ -47,10 +45,13 @@ class VOIP_FRAME(Frame):
         print("Você está desmutado")
         while self.mute is False:
             data = stream.read(chunk)
-            s.send(data)
+            audio_segment = AudioSegment(data, sample_width=2, frame_rate=RATE, channels=CHANNELS)
+            compressed_io = BytesIO()
+            audio_segment.export(compressed_io, format="mp3", bitrate="32k")
+            compressed_data = compressed_io.getvalue()
+            s.send(compressed_data)
             s.recv(size)
         
-
     def createWidgets(self):
         self.speakb = Button(self)
         self.speakb["text"] = "Falar"
@@ -73,5 +74,3 @@ root.destroy()
 s.close()
 stream.close()
 p.terminate()
-
-    
