@@ -5,7 +5,7 @@ For the compression to work, you have to install FFmpeg on your computer (https:
 
 Changed the packet format to UDP, so it can be more like a real VoIP application.
 
-Probably I forgot some details that were needed for it to run properly in this readme. If you want some help, send me a message on telegram (www.t.me/jpbimbato) or Instagram (@pedrobimbato).
+I probably forgot some details that were needed for it to run properly in this readme. If you want some help, send me a message on telegram (www.t.me/jpbimbato) or Instagram (@pedrobimbato).
 
 ### Implementation of Voice over Internet Protocol (VOIP) in Python3
 It is an implementation of Voice over Internet Protocol in Python3 for Windows.
